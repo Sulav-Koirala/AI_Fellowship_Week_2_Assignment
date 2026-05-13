@@ -24,6 +24,7 @@ def create_customer(db: Session, customer: customer_schemas.CustomerCreate):
         return db_customer
     except IntegrityError:
         db.rollback()
+        logger.error("Foreign Key error occurred")
         raise HTTPException(
             status_code=400, 
             detail="ForeignKey Error"

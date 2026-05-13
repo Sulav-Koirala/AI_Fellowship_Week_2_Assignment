@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from app.routers import count_routers,customer_routers,employee_routers,office_routers,order_routers,\
     payment_routers,product_routers,productline_routers,orderdetail_routers
+from app.logger import logger
 
 app = FastAPI()
 
@@ -17,4 +18,5 @@ app.include_router(orderdetail_routers.router)
 
 @app.get("/")
 def main():
+    logger.info("API is fully operating")
     return {"message": "API is fully functional"}
