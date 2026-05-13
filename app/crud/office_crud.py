@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.models import Office
+from app.models import Office,Employee
 from app.schemas.office_schemas import OfficeCreate, OfficeUpdate
 from fastapi import HTTPException
 
@@ -28,7 +28,13 @@ def update_office(db: Session, office_code: str, data: OfficeUpdate):
     return db_office
 
 def delete_office(db: Session, office_code: str):
-    db_office = get_office(db, office_code)
+    employee_count = db.query(Employee).filter(Employee.office_code == office_code).count()
+    if employee_count > 0:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Cannot delete office. {employee_count} employees are still assigned to it."
+        )
+    db_office = db.query(Office).filter(Office.office_code == office_code).first()
     db.delete(db_office)
     db.commit()
-    return {"message": "Office deleted"}
+    return {"message": "Office deleted successfully"}

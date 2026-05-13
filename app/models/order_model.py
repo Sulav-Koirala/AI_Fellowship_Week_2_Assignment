@@ -14,7 +14,7 @@ class Order(Base):
     customer_number = Column("customerNumber", Integer, ForeignKey("customers.customerNumber"), nullable=False)
 
     customer = relationship("Customer", back_populates="orders")
-    order_details = relationship("OrderDetail", back_populates="order")
+    order_details = relationship("OrderDetail", back_populates="order", cascade="all, delete-orphan")
 
 class OrderDetail(Base):
     __tablename__ = "orderdetails"

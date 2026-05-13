@@ -16,7 +16,7 @@ class Product(Base):
     msrp = Column("MSRP", Numeric(10, 2), nullable=False)
 
     product_line_obj = relationship("ProductLine", back_populates="products")
-    order_details = relationship("OrderDetail", back_populates="product")
+    order_details = relationship("OrderDetail", back_populates="product", cascade="all, delete-orphan")
 
 
 class ProductLine(Base):

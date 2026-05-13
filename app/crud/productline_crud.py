@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from app.models import ProductLine
 from app.schemas.productline_schemas import ProductlineCreate, ProductlineUpdate
 from fastapi import HTTPException
+from sqlalchemy.exc import IntegrityError
 
 def get_product_lines(db: Session, skip: int = 0, limit: int = 10):
     return db.query(ProductLine).offset(skip).limit(limit).all()
@@ -23,13 +24,28 @@ def update_product_line(db: Session, product_line: str, data: ProductlineUpdate)
     db_obj = get_product_line(db, product_line)
     for key, value in data.model_dump(exclude_unset=True).items():
         setattr(db_obj, key, value)
-    db.commit()
-    db.refresh(db_obj)
-    return db_obj
+    try:
+        db.commit()
+        db.refresh(db_obj)
+        return db_obj
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=409, 
+            detail="ForeignKey Error"
+        )
+
 
 def delete_product_line(db: Session, product_line: str):
     db_obj = get_product_line(db, product_line)
-    # Note: FK check handled by DB; router should catch error and return 409
-    db.delete(db_obj)
-    db.commit()
-    return {"message": "Deleted"}
+    try:
+        db.delete(db_obj)
+        db.commit()
+        return {"message": "Deleted"}
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=409, 
+            detail="ForeignKey Error"
+        )
+    

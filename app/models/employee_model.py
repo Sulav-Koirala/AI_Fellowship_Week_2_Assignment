@@ -11,8 +11,10 @@ class Employee(Base):
     extension = Column(String(10), nullable=False)
     email = Column(String(100), nullable=False)
     office_code = Column("officeCode", String(10), ForeignKey("offices.officeCode"), nullable=False)
-    reports_to = Column("reportsTo", Integer, ForeignKey("employees.employeeNumber"), ondelete="SET NULL")
+    reports_to = Column("reportsTo", Integer, ForeignKey("employees.employeeNumber", ondelete="SET NULL"))
     job_title = Column("jobTitle", String(50), nullable=False)
 
     office = relationship("Office", back_populates="employees")
     customers = relationship("Customer", back_populates="employee")
+    manager = relationship("Employee", remote_side=[employee_number], back_populates="subordinates")
+    subordinates = relationship("Employee", back_populates="manager")
